@@ -4,6 +4,7 @@
 export const PRESET_SCENARIOS = {
   "london-flooding": {
     name: "London Flooding",
+    type: "FLOOD",
     summary:
       "Severe Thames flooding across SW/W London. Multiple boroughs affected, A316 and A307 cut.",
     locations: [
@@ -64,7 +65,8 @@ export const PRESET_SCENARIOS = {
   },
 
   "wildfire-evacuation": {
-    name: "Wildfire Evacuation — Surrey Heath",
+    name: "Wildfire — Surrey Heath",
+    type: "FIRE",
     summary:
       "Heath fires spreading east from Frensham toward Hindhead. Four evacuation centres open, two filling fast.",
     locations: [
@@ -126,7 +128,8 @@ export const PRESET_SCENARIOS = {
   },
 
   "winter-storm": {
-    name: "Winter Storm — North Pennines",
+    name: "Winter Storm — Pennines",
+    type: "STORM",
     summary:
       "Severe winter storm across Cumbria/Northumberland. Power down across rural villages, A69 and A686 impassable, hospitals on backup.",
     locations: [
@@ -253,6 +256,7 @@ export function listPresets() {
   return Object.entries(PRESET_SCENARIOS).map(([id, preset]) => ({
     id,
     name: preset.name,
+    type: preset.type || "EVENT",
     summary: preset.summary,
   }));
 }

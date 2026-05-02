@@ -78,13 +78,18 @@ router.post("/:id/run-agents", async (req, res, next) => {
     const doc = await EmergencyState.findById(req.params.id);
     if (!doc) return res.status(404).json({ error: "Scenario not found" });
 
-    const { outputs, actionPlan, errors } = await runAllAgents(doc);
+    const { outputs, actionPlan, conflicts, errors } = await runAllAgents(doc);
 
     doc.agentOutputs = outputs;
     doc.actionPlan = actionPlan;
+    doc.conflicts = conflicts;
     doc.history.push({
-      event: `Agent run complete (${actionPlan.length} actions planned${
-        Object.keys(errors).length ? `, ${Object.keys(errors).length} agent errors` : ""
+      event: `Agent run complete (${actionPlan.length} actions, ${
+        conflicts.length
+      } conflict${conflicts.length === 1 ? "" : "s"}${
+        Object.keys(errors).length
+          ? `, ${Object.keys(errors).length} agent errors`
+          : ""
       })`,
       type: "agent_run",
       timestamp: new Date(),

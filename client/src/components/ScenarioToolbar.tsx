@@ -5,7 +5,6 @@ interface Props {
   scenarioName: string;
   running: boolean;
   onRun: () => void;
-  onAddUpdate: () => void;
 }
 
 export function ScenarioToolbar({
@@ -13,7 +12,6 @@ export function ScenarioToolbar({
   scenarioName,
   running,
   onRun,
-  onAddUpdate,
 }: Props) {
   const critical = scenario.locations.filter((l) => l.status === "critical").length;
   const open = scenario.locations.filter((l) => l.status === "open").length;
@@ -40,13 +38,6 @@ export function ScenarioToolbar({
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            className="btn-ghost text-sm"
-            onClick={onAddUpdate}
-          >
-            + Add update
-          </button>
           <button
             type="button"
             className="btn-primary text-sm"

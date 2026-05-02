@@ -54,6 +54,16 @@ const CompletedDeliverySchema = new Schema(
   { _id: false }
 );
 
+const ConflictResolutionSchema = new Schema(
+  {
+    conflict: { type: String, default: "" },
+    decision: { type: String, default: "" },
+    overruled: { type: String, default: "" },
+    reasoning: { type: String, default: "" },
+  },
+  { _id: false }
+);
+
 const ActionPlanItemSchema = new Schema(
   {
     priority: { type: Number, required: true },
@@ -64,8 +74,25 @@ const ActionPlanItemSchema = new Schema(
       enum: ["pending", "in_progress", "complete"],
       default: "pending",
     },
+    conflictResolved: { type: ConflictResolutionSchema, default: null },
   },
   { _id: true }
+);
+
+const ConflictSchema = new Schema(
+  {
+    conflictId: { type: String, required: true },
+    between: { type: [String], default: [] },
+    issue: { type: String, default: "" },
+    locations: { type: [String], default: [] },
+    resource: { type: String, default: "" },
+    source: {
+      type: String,
+      enum: ["self_reported", "programmatic"],
+      default: "self_reported",
+    },
+  },
+  { _id: false }
 );
 
 const HistoryEventSchema = new Schema(
@@ -104,6 +131,7 @@ const EmergencyStateSchema = new Schema(
     completedDeliveries: { type: [CompletedDeliverySchema], default: [] },
     agentOutputs: { type: AgentOutputsSchema, default: () => ({}) },
     actionPlan: { type: [ActionPlanItemSchema], default: [] },
+    conflicts: { type: [ConflictSchema], default: [] },
     history: { type: [HistoryEventSchema], default: [] },
   },
   { timestamps: true }

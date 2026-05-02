@@ -20,42 +20,6 @@ export async function getScenario(id: string): Promise<EmergencyState> {
   return data;
 }
 
-export type ScenarioUpdate =
-  | { type: "block_road"; road: string }
-  | { type: "unblock_road"; road: string }
-  | { type: "location_status"; locationId: string; status: string }
-  | {
-      type: "add_location";
-      location: {
-        id: string;
-        name: string;
-        status: string;
-        needs: string[];
-        population: number;
-        coordinates: { lat: number; lng: number };
-      };
-    }
-  | {
-      type: "add_request";
-      request: {
-        locationId: string;
-        item: string;
-        urgency: string;
-      };
-    }
-  | { type: "note"; text: string };
-
-export async function pushUpdate(
-  id: string,
-  update: ScenarioUpdate
-): Promise<EmergencyState> {
-  const { data } = await api.post<EmergencyState>(
-    `/api/scenario/${id}/update`,
-    update
-  );
-  return data;
-}
-
 export interface RunAgentsResponse {
   scenario: EmergencyState;
   errors: Record<string, string>;

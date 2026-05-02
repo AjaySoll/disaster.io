@@ -4,18 +4,24 @@ import { runRoutePlanning } from "../agents/routePlanning.js";
 import { runPriority } from "../agents/priority.js";
 import { runCommunication } from "../agents/communication.js";
 import { runCoordinator } from "../agents/coordinator.js";
+import { detectConflicts } from "./conflictDetector.js";
 
 /**
  * Run all 6 agents.
- * The first 5 run in parallel via Promise.all; the Coordinator waits for the
- * others, then synthesises the final action plan.
  *
- * Each agent is wrapped in a settle helper so a single failure doesn't kill
- * the whole run — failed agents return an empty string and the failure is
- * surfaced to the caller via the `errors` map.
+ * Flow:
+ *   1. The five specialists run in parallel via Promise.all.
+ *   2. Their raw outputs go through conflictDetector — self-reported
+ *      CONFLICT_SIGNAL lines are parsed out and a programmatic blocked-road
+ *      check runs as backup.
+ *   3. The cleaned outputs + the conflict list are handed to the Coordinator,
+ *      which must arbitrate each conflict and emit an extended action plan.
+ *
+ * Each specialist call is wrapped in a settle helper so a single failure
+ * doesn't kill the whole run — failed agents return an empty string and the
+ * failure is surfaced to the caller via the `errors` map.
  */
 export async function runAllAgents(stateDoc) {
-  // Mongoose doc -> plain object for the LLM context
   const state = stateDoc.toObject ? stateDoc.toObject() : stateDoc;
 
   const tasks = {
@@ -30,17 +36,23 @@ export async function runAllAgents(stateDoc) {
     Object.entries(tasks).map(async ([key, p]) => [key, await p])
   );
 
-  const outputs = {};
+  const rawOutputs = {};
   const errors = {};
   for (const [key, result] of entries) {
-    outputs[key] = result.value || "";
+    rawOutputs[key] = result.value || "";
     if (result.error) errors[key] = result.error;
   }
+
+  // Strip CONFLICT_SIGNAL lines and detect conflicts.
+  const { outputs: cleanedOutputs, conflicts } = detectConflicts(
+    rawOutputs,
+    state
+  );
 
   let coordinatorRaw = "";
   let actionPlan = [];
   try {
-    const coord = await runCoordinator(state, outputs);
+    const coord = await runCoordinator(state, cleanedOutputs, conflicts);
     coordinatorRaw = coord.raw;
     actionPlan = coord.plan;
   } catch (err) {
@@ -48,8 +60,9 @@ export async function runAllAgents(stateDoc) {
   }
 
   return {
-    outputs: { ...outputs, coordinator: coordinatorRaw },
+    outputs: { ...cleanedOutputs, coordinator: coordinatorRaw },
     actionPlan,
+    conflicts,
     errors,
   };
 }

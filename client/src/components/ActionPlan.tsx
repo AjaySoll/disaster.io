@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
 import type {
   ActionPlanItem,
+  ConflictResolution,
   EmergencyState,
   InventoryItem,
   Location,
@@ -114,56 +115,138 @@ function ActionRow({
 }: ActionRowProps) {
   const guess = guessDelivery(action, locations, inventory);
   const isComplete = action.status === "complete";
+  const arbitrated = Boolean(action.conflictResolved);
+  const [showResolution, setShowResolution] = useState(false);
 
   return (
-    <tr
-      className={clsx(
-        "border-t border-bg-line/70 align-top",
-        highlighted && "animate-row-highlight",
-        isComplete && "opacity-60"
-      )}
-    >
-      <td className="px-3 py-2 text-right data-cell text-urgent font-semibold">
-        {action.priority}
-      </td>
-      <td className="px-3 py-2">
-        <div className="font-sans text-sm text-ink leading-snug">
-          {action.action}
-        </div>
-        {action.reason && (
-          <div className="mt-1 font-mono text-[11px] text-ink-mute leading-snug">
-            {action.reason}
-          </div>
+    <>
+      <tr
+        className={clsx(
+          "border-t border-bg-line/70 align-top",
+          highlighted && "animate-row-highlight",
+          isComplete && "opacity-60"
         )}
-      </td>
-      <td className="px-3 py-2">
-        <StatusPill status={action.status} />
-      </td>
-      <td className="px-3 py-2 text-right">
-        {isComplete ? (
-          <span className="font-mono text-[11px] text-safe">✓ delivered</span>
-        ) : guess ? (
+      >
+        <td className="px-3 py-2 text-right data-cell text-urgent font-semibold">
+          {action.priority}
+        </td>
+        <td className="px-3 py-2">
+          <div className="font-sans text-sm text-ink leading-snug flex items-start gap-2">
+            <span className="flex-1">{action.action}</span>
+            {arbitrated && (
+              <button
+                type="button"
+                onClick={() => setShowResolution((s) => !s)}
+                className="shrink-0 inline-flex items-center gap-1 font-mono text-[10px] text-urgent border border-urgent/40 bg-urgent-soft rounded px-1.5 py-0.5 hover:bg-urgent/20 transition-colors"
+                title="This action resolved an inter-agent conflict"
+              >
+                ⚖ arbitrated
+              </button>
+            )}
+          </div>
+          {action.reason && (
+            <div className="mt-1 font-mono text-[11px] text-ink-mute leading-snug">
+              {action.reason}
+            </div>
+          )}
+        </td>
+        <td className="px-3 py-2">
+          <StatusPill status={action.status} />
+        </td>
+        <td className="px-3 py-2 text-right">
+          {isComplete ? (
+            <span className="font-mono text-[11px] text-safe">✓ delivered</span>
+          ) : guess ? (
+            <button
+              type="button"
+              className="btn-safe text-xs"
+              onClick={() =>
+                onDeliver({
+                  actionId: action._id,
+                  locationId: guess.locationId,
+                  item: guess.item,
+                  quantity: guess.quantity,
+                })
+              }
+            >
+              Mark delivered
+            </button>
+          ) : (
+            <span className="font-mono text-[10px] text-ink-mute">
+              no auto-match
+            </span>
+          )}
+        </td>
+      </tr>
+      {arbitrated && showResolution && action.conflictResolved && (
+        <tr className="border-t border-bg-line/40 bg-bg-raised/30">
+          <td></td>
+          <td colSpan={3} className="px-3 py-2.5">
+            <ArbitrationDetail resolved={action.conflictResolved} />
+          </td>
+        </tr>
+      )}
+    </>
+  );
+}
+
+function ArbitrationDetail({ resolved }: { resolved: ConflictResolution }) {
+  const [showReasoning, setShowReasoning] = useState(false);
+  const hasReasoning = Boolean(resolved.reasoning && resolved.reasoning.trim());
+
+  return (
+    <div className="border-l-2 border-urgent/60 pl-3 space-y-1.5">
+      <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-ink-dim">
+        Coordinator arbitration
+      </div>
+      {resolved.conflict && (
+        <p className="font-sans text-[12px] text-ink-dim leading-snug">
+          <span className="font-mono text-[9px] text-ink-mute uppercase tracking-[0.14em] mr-1.5">
+            conflict
+          </span>
+          {resolved.conflict}
+        </p>
+      )}
+      {resolved.decision && (
+        <p className="font-sans text-[12px] text-ink leading-snug">
+          <span className="font-mono text-[9px] text-safe uppercase tracking-[0.14em] mr-1.5">
+            sided with
+          </span>
+          {resolved.decision}
+        </p>
+      )}
+      {resolved.overruled && (
+        <p className="font-sans text-[12px] text-ink-dim leading-snug">
+          <span className="font-mono text-[9px] text-critical uppercase tracking-[0.14em] mr-1.5">
+            overruled
+          </span>
+          {resolved.overruled}
+        </p>
+      )}
+
+      {hasReasoning && (
+        <div className="pt-1">
           <button
             type="button"
-            className="btn-safe text-xs"
-            onClick={() =>
-              onDeliver({
-                actionId: action._id,
-                locationId: guess.locationId,
-                item: guess.item,
-                quantity: guess.quantity,
-              })
-            }
+            onClick={() => setShowReasoning((s) => !s)}
+            className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.16em] text-ink-dim hover:text-urgent transition-colors"
           >
-            Mark delivered
+            <span>{showReasoning ? "▾" : "▸"}</span>
+            {showReasoning ? "hide reasoning" : "show reasoning"}
           </button>
-        ) : (
-          <span className="font-mono text-[10px] text-ink-mute">
-            no auto-match
-          </span>
-        )}
-      </td>
-    </tr>
+          {showReasoning && (
+            <div className="mt-1.5 rounded border border-bg-line bg-bg-panel/60 px-2.5 py-2 animate-fade-in-up">
+              <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-ink-mute mb-1">
+                why this side won
+              </div>
+              <p className="font-sans text-[12.5px] text-ink-dim leading-relaxed whitespace-pre-wrap">
+                {resolved.reasoning}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 

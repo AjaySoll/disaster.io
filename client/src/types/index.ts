@@ -42,12 +42,31 @@ export interface CompletedDelivery {
   timestamp: string;
 }
 
+export interface ConflictResolution {
+  conflict: string;
+  decision: string;
+  overruled: string;
+  reasoning?: string;
+}
+
 export interface ActionPlanItem {
   _id?: string;
   priority: number;
   action: string;
   reason: string;
   status: ActionStatus;
+  conflictResolved?: ConflictResolution | null;
+}
+
+export type ConflictSource = "self_reported" | "programmatic";
+
+export interface Conflict {
+  conflictId: string;
+  between: string[];
+  issue: string;
+  locations: string[];
+  resource: string;
+  source: ConflictSource;
 }
 
 export interface AgentOutputs {
@@ -76,6 +95,7 @@ export interface EmergencyState {
   completedDeliveries: CompletedDelivery[];
   agentOutputs: AgentOutputs;
   actionPlan: ActionPlanItem[];
+  conflicts: Conflict[];
   history: HistoryEvent[];
   createdAt: string;
   updatedAt: string;
@@ -84,6 +104,7 @@ export interface EmergencyState {
 export interface PresetSummary {
   id: string;
   name: string;
+  type: string;
   summary: string;
 }
 

@@ -13,6 +13,18 @@ export interface Coordinates {
   lng: number;
 }
 
+export interface Vulnerability {
+  childrenPresent: boolean;
+  elderlyResidents: boolean;
+  medicalEmergency: boolean;
+  disabilityAccessNeeds: boolean;
+  powerDependency: boolean;
+  shelterCapacity: number;
+  lastDeliveryTime?: string | null;
+}
+
+export type PriorityTier = "critical" | "high" | "medium" | "low";
+
 export interface Location {
   id: string;
   name: string;
@@ -20,6 +32,8 @@ export interface Location {
   needs: string[];
   population: number;
   coordinates: Coordinates;
+  vulnerability: Vulnerability;
+  priorityScore: number;
 }
 
 export interface InventoryItem {

@@ -2,6 +2,19 @@ import mongoose from "mongoose";
 
 const { Schema } = mongoose;
 
+const VulnerabilitySchema = new Schema(
+  {
+    childrenPresent: { type: Boolean, default: false },
+    elderlyResidents: { type: Boolean, default: false },
+    medicalEmergency: { type: Boolean, default: false },
+    disabilityAccessNeeds: { type: Boolean, default: false },
+    powerDependency: { type: Boolean, default: false },
+    shelterCapacity: { type: Number, default: 0 },
+    lastDeliveryTime: { type: Date, default: null },
+  },
+  { _id: false }
+);
+
 const LocationSchema = new Schema(
   {
     id: { type: String, required: true },
@@ -17,6 +30,8 @@ const LocationSchema = new Schema(
       lat: { type: Number, required: true },
       lng: { type: Number, required: true },
     },
+    vulnerability: { type: VulnerabilitySchema, default: () => ({}) },
+    priorityScore: { type: Number, default: 0 },
   },
   { _id: false }
 );

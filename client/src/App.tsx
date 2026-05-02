@@ -11,6 +11,7 @@ import { SituationReport } from "./components/SituationReport";
 import { EventLog } from "./components/EventLog";
 import { AddUpdateModal } from "./components/AddUpdateModal";
 import { ScenarioMap } from "./components/ScenarioMap";
+import { VulnerabilityPanel } from "./components/VulnerabilityPanel";
 
 export default function App() {
   const {
@@ -121,6 +122,9 @@ function Dashboard({
         errors={errors}
         running={running}
       />
+
+      {/* Vulnerability priority scoring — full width */}
+      <VulnerabilityPanel scenario={scenario} />
 
       {/* Three-column dashboard grid: locations / action plan / inventory */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">

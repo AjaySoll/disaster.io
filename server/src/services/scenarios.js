@@ -14,6 +14,14 @@ export const PRESET_SCENARIOS = {
         needs: ["water"],
         population: 420,
         coordinates: { lat: 51.4663, lng: -0.3661 },
+        vulnerability: {
+          childrenPresent: true,
+          elderlyResidents: false,
+          medicalEmergency: false,
+          disabilityAccessNeeds: true,
+          powerDependency: false,
+          shelterCapacity: 350,
+        },
       },
       {
         id: "richmond",
@@ -22,6 +30,14 @@ export const PRESET_SCENARIOS = {
         needs: ["shelter", "blankets"],
         population: 310,
         coordinates: { lat: 51.4613, lng: -0.3037 },
+        vulnerability: {
+          childrenPresent: true,
+          elderlyResidents: false,
+          medicalEmergency: false,
+          disabilityAccessNeeds: false,
+          powerDependency: false,
+          shelterCapacity: 300,
+        },
       },
       {
         id: "kingston",
@@ -30,6 +46,14 @@ export const PRESET_SCENARIOS = {
         needs: ["medical"],
         population: 180,
         coordinates: { lat: 51.4123, lng: -0.2871 },
+        vulnerability: {
+          childrenPresent: false,
+          elderlyResidents: true,
+          medicalEmergency: true,
+          disabilityAccessNeeds: true,
+          powerDependency: true,
+          shelterCapacity: 0,
+        },
       },
       {
         id: "croydon",
@@ -38,6 +62,14 @@ export const PRESET_SCENARIOS = {
         needs: ["power", "generator"],
         population: 95,
         coordinates: { lat: 51.3762, lng: -0.0982 },
+        vulnerability: {
+          childrenPresent: false,
+          elderlyResidents: true,
+          medicalEmergency: false,
+          disabilityAccessNeeds: true,
+          powerDependency: true,
+          shelterCapacity: 100,
+        },
       },
       {
         id: "ealing",
@@ -46,6 +78,14 @@ export const PRESET_SCENARIOS = {
         needs: ["staffing", "supplies"],
         population: 0,
         coordinates: { lat: 51.5131, lng: -0.3046 },
+        vulnerability: {
+          childrenPresent: false,
+          elderlyResidents: false,
+          medicalEmergency: false,
+          disabilityAccessNeeds: false,
+          powerDependency: false,
+          shelterCapacity: 500,
+        },
       },
     ],
     inventory: [
@@ -75,6 +115,14 @@ export const PRESET_SCENARIOS = {
         needs: ["transport", "medical"],
         population: 540,
         coordinates: { lat: 51.169, lng: -0.799 },
+        vulnerability: {
+          childrenPresent: true,
+          elderlyResidents: true,
+          medicalEmergency: false,
+          disabilityAccessNeeds: true,
+          powerDependency: false,
+          shelterCapacity: 500,
+        },
       },
       {
         id: "hindhead",
@@ -83,6 +131,14 @@ export const PRESET_SCENARIOS = {
         needs: ["water", "evacuation kits"],
         population: 380,
         coordinates: { lat: 51.115, lng: -0.735 },
+        vulnerability: {
+          childrenPresent: true,
+          elderlyResidents: false,
+          medicalEmergency: false,
+          disabilityAccessNeeds: false,
+          powerDependency: false,
+          shelterCapacity: 300,
+        },
       },
       {
         id: "farnham",
@@ -91,6 +147,14 @@ export const PRESET_SCENARIOS = {
         needs: ["oxygen", "first aid"],
         population: 220,
         coordinates: { lat: 51.215, lng: -0.799 },
+        vulnerability: {
+          childrenPresent: false,
+          elderlyResidents: true,
+          medicalEmergency: true,
+          disabilityAccessNeeds: true,
+          powerDependency: true,
+          shelterCapacity: 0,
+        },
       },
       {
         id: "haslemere",
@@ -99,6 +163,14 @@ export const PRESET_SCENARIOS = {
         needs: ["shelter", "food"],
         population: 470,
         coordinates: { lat: 51.0884, lng: -0.7117 },
+        vulnerability: {
+          childrenPresent: true,
+          elderlyResidents: false,
+          medicalEmergency: false,
+          disabilityAccessNeeds: false,
+          powerDependency: false,
+          shelterCapacity: 400,
+        },
       },
       {
         id: "guildford",
@@ -107,6 +179,14 @@ export const PRESET_SCENARIOS = {
         needs: ["staffing"],
         population: 60,
         coordinates: { lat: 51.2362, lng: -0.5704 },
+        vulnerability: {
+          childrenPresent: false,
+          elderlyResidents: false,
+          medicalEmergency: false,
+          disabilityAccessNeeds: false,
+          powerDependency: false,
+          shelterCapacity: 800,
+        },
       },
     ],
     inventory: [
@@ -137,6 +217,14 @@ export const PRESET_SCENARIOS = {
         needs: ["food", "heating", "evacuation"],
         population: 1100,
         coordinates: { lat: 54.811, lng: -2.439 },
+        vulnerability: {
+          childrenPresent: true,
+          elderlyResidents: true,
+          medicalEmergency: false,
+          disabilityAccessNeeds: false,
+          powerDependency: true,
+          shelterCapacity: 0,
+        },
       },
       {
         id: "carlisle",
@@ -145,6 +233,14 @@ export const PRESET_SCENARIOS = {
         needs: ["generator", "medical fuel"],
         population: 280,
         coordinates: { lat: 54.8951, lng: -2.9382 },
+        vulnerability: {
+          childrenPresent: false,
+          elderlyResidents: true,
+          medicalEmergency: true,
+          disabilityAccessNeeds: true,
+          powerDependency: true,
+          shelterCapacity: 0,
+        },
       },
       {
         id: "newcastle-care",
@@ -153,6 +249,14 @@ export const PRESET_SCENARIOS = {
         needs: ["generator", "thermal blankets"],
         population: 80,
         coordinates: { lat: 54.9714, lng: -1.6174 },
+        vulnerability: {
+          childrenPresent: false,
+          elderlyResidents: true,
+          medicalEmergency: false,
+          disabilityAccessNeeds: true,
+          powerDependency: true,
+          shelterCapacity: 90,
+        },
       },
       {
         id: "hexham",
@@ -161,6 +265,14 @@ export const PRESET_SCENARIOS = {
         needs: ["blankets", "hot meals"],
         population: 240,
         coordinates: { lat: 54.971, lng: -2.103 },
+        vulnerability: {
+          childrenPresent: true,
+          elderlyResidents: false,
+          medicalEmergency: false,
+          disabilityAccessNeeds: false,
+          powerDependency: false,
+          shelterCapacity: 300,
+        },
       },
       {
         id: "penrith",
@@ -169,6 +281,14 @@ export const PRESET_SCENARIOS = {
         needs: ["thermal blankets", "medical staff"],
         population: 130,
         coordinates: { lat: 54.6644, lng: -2.7527 },
+        vulnerability: {
+          childrenPresent: false,
+          elderlyResidents: true,
+          medicalEmergency: false,
+          disabilityAccessNeeds: true,
+          powerDependency: true,
+          shelterCapacity: 120,
+        },
       },
     ],
     inventory: [

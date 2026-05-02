@@ -2,6 +2,7 @@ import { Router } from "express";
 import { EmergencyState } from "../models/EmergencyState.js";
 import { runAllAgents } from "../services/agentRunner.js";
 import { buildScenarioState, listPresets } from "../services/scenarios.js";
+import { computePriorityScore } from "../services/scoring.js";
 
 const router = Router();
 
@@ -22,7 +23,9 @@ router.post("/start", async (req, res, next) => {
       return res.status(400).json({ error: "scenarioId is required" });
     }
     const initial = buildScenarioState(scenarioId, custom);
-    const doc = await EmergencyState.create(initial);
+    const doc = new EmergencyState(initial);
+    refreshScores(doc);
+    await doc.save();
     res.status(201).json(doc);
   } catch (err) {
     next(err);
@@ -34,6 +37,7 @@ router.get("/:id", async (req, res, next) => {
   try {
     const doc = await EmergencyState.findById(req.params.id);
     if (!doc) return res.status(404).json({ error: "Scenario not found" });
+    refreshScores(doc);
     res.json(doc);
   } catch (err) {
     next(err);
@@ -62,6 +66,7 @@ router.post("/:id/update", async (req, res, next) => {
     }
 
     doc.history.push({ event, type: "update", timestamp: new Date() });
+    refreshScores(doc);
     await doc.save();
     res.json(doc);
   } catch (err) {
@@ -89,6 +94,7 @@ router.post("/:id/run-agents", async (req, res, next) => {
       type: "agent_run",
       timestamp: new Date(),
     });
+    refreshScores(doc);
     await doc.save();
 
     res.json({ scenario: doc, errors });
@@ -150,6 +156,14 @@ router.post("/:id/deliver", async (req, res, next) => {
 
     const location = doc.locations.find((l) => l.id === locationId);
     const locName = location ? location.name : locationId;
+
+    // Stamp the last delivery time so the scoring service can track wait time
+    if (location) {
+      if (!location.vulnerability) location.vulnerability = {};
+      location.vulnerability.lastDeliveryTime = new Date();
+      doc.markModified("locations");
+    }
+
     doc.history.push({
       event: `Delivered ${delivered} × ${item} to ${locName}${
         remaining > 0 ? ` (short by ${remaining})` : ""
@@ -158,12 +172,29 @@ router.post("/:id/deliver", async (req, res, next) => {
       timestamp: new Date(),
     });
 
+    refreshScores(doc);
     await doc.save();
     res.json(doc);
   } catch (err) {
     next(err);
   }
 });
+
+/**
+ * Recompute priorityScore for every location in the doc (mutates in-place).
+ * Called before every save so the stored value is always fresh.
+ */
+function refreshScores(doc) {
+  const state = doc.toObject ? doc.toObject() : doc;
+  for (const loc of doc.locations) {
+    loc.priorityScore = computePriorityScore(
+      state.locations.find((l) => l.id === loc.id) || loc,
+      state.activeRequests,
+      state.blockedRoads,
+      state.timestamp
+    );
+  }
+}
 
 function applyUpdate(doc, update) {
   switch (update.type) {
@@ -196,6 +227,8 @@ function applyUpdate(doc, update) {
         needs: loc.needs || [],
         population: loc.population || 0,
         coordinates: loc.coordinates,
+        vulnerability: loc.vulnerability || {},
+        priorityScore: 0,
       });
       return `New location opened: ${loc.name}`;
     }

@@ -284,6 +284,16 @@ function AddRequestForm({
   );
 }
 
+const VULN_CHECKBOXES = [
+  { key: "medicalEmergency",      label: "🏥 Medical emergency on-site" },
+  { key: "childrenPresent",       label: "👶 Children present" },
+  { key: "powerDependency",       label: "⚡ Power-dependent equipment" },
+  { key: "elderlyResidents",      label: "👴 Elderly residents" },
+  { key: "disabilityAccessNeeds", label: "♿ Disability / mobility needs" },
+] as const;
+
+type VulnKey = typeof VULN_CHECKBOXES[number]["key"];
+
 function AddLocationForm({
   submitting,
   onSubmit,
@@ -296,13 +306,26 @@ function AddLocationForm({
     needs: string[];
     population: number;
     coordinates: { lat: number; lng: number };
+    vulnerability: Record<string, boolean | number>;
   }) => void;
 }) {
   const [name, setName] = useState("");
   const [needs, setNeeds] = useState("");
   const [population, setPopulation] = useState("0");
+  const [shelterCapacity, setShelterCapacity] = useState("0");
   const [lat, setLat] = useState("51.5");
   const [lng, setLng] = useState("-0.1");
+  const [vulnFlags, setVulnFlags] = useState<Record<VulnKey, boolean>>({
+    medicalEmergency: false,
+    childrenPresent: false,
+    powerDependency: false,
+    elderlyResidents: false,
+    disabilityAccessNeeds: false,
+  });
+
+  const toggleFlag = (key: VulnKey) =>
+    setVulnFlags((prev) => ({ ...prev, [key]: !prev[key] }));
+
   return (
     <form
       className="space-y-2"
@@ -318,6 +341,10 @@ function AddLocationForm({
           coordinates: {
             lat: Number(lat) || 0,
             lng: Number(lng) || 0,
+          },
+          vulnerability: {
+            ...vulnFlags,
+            shelterCapacity: Number(shelterCapacity) || 0,
           },
         });
       }}
@@ -362,6 +389,33 @@ function AddLocationForm({
           />
         </div>
       </div>
+
+      <div className="border-t border-bg-line pt-2">
+        <label className="label-cell block mb-1.5">Vulnerability factors</label>
+        <div className="space-y-1.5">
+          {VULN_CHECKBOXES.map(({ key, label }) => (
+            <label
+              key={key}
+              className="flex items-center gap-2 cursor-pointer select-none"
+            >
+              <input
+                type="checkbox"
+                className="accent-amber-400 w-3.5 h-3.5"
+                checked={vulnFlags[key]}
+                onChange={() => toggleFlag(key)}
+              />
+              <span className="font-mono text-[11px] text-ink">{label}</span>
+            </label>
+          ))}
+        </div>
+        <label className="label-cell block mt-2">Shelter capacity (0 = unknown)</label>
+        <input
+          className="input"
+          value={shelterCapacity}
+          onChange={(e) => setShelterCapacity(e.target.value)}
+        />
+      </div>
+
       <SubmitRow submitting={submitting} disabled={!name.trim()} />
     </form>
   );

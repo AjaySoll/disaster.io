@@ -1,0 +1,21 @@
+{
+  "name": "disaster.io",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Disaster Response Logistics Coordinator — multi-agent disaster response coordination system",
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev": "npm-run-all --parallel dev:server dev:client",
+    "dev:server": "npm --workspace server run dev",
+    "dev:client": "npm --workspace client run dev",
+    "build": "npm --workspace client run build",
+    "start": "npm --workspace server run start",
+    "install:all": "npm install"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5"
+  }
+}

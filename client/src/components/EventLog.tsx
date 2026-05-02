@@ -32,7 +32,7 @@ export function EventLog({ history }: Props) {
     <section className="panel h-full">
       <header className="panel-header">
         <div className="flex items-center gap-3">
-          <span className="panel-eyebrow">06</span>
+          <span className="panel-eyebrow">Log</span>
           <h2 className="panel-title">Event history</h2>
         </div>
         <span className="font-mono text-[11px] text-ink-mute">

@@ -3,22 +3,21 @@ import { StatusBadge } from "./StatusBadge";
 
 interface Props {
   scenario: EmergencyState;
-  onAddUpdate: () => void;
 }
 
-export function LocationsPanel({ scenario, onAddUpdate }: Props) {
+export function LocationsPanel({ scenario }: Props) {
   const { locations, blockedRoads } = scenario;
 
   return (
     <section className="panel">
       <header className="panel-header">
         <div className="flex items-center gap-3">
-          <span className="panel-eyebrow">01</span>
+          <span className="panel-eyebrow">Sites</span>
           <h2 className="panel-title">Active locations</h2>
         </div>
-        <button type="button" className="btn-ghost text-xs" onClick={onAddUpdate}>
-          + Add update
-        </button>
+        <span className="font-mono text-[11px] text-ink-mute">
+          {locations.length} active
+        </span>
       </header>
 
       <div className="overflow-auto">

@@ -8,7 +8,6 @@ interface Props {
   statuses: AgentStatusMap;
   errors: Record<string, string>;
   running: boolean;
-  onRun: () => void;
 }
 
 const STATUS_LABEL: Record<AgentStatus, string> = {
@@ -25,31 +24,26 @@ const STATUS_DOT: Record<AgentStatus, string> = {
   error: "bg-critical",
 };
 
-export function AgentCards({
-  outputs,
-  statuses,
-  errors,
-  running,
-  onRun,
-}: Props) {
+export function AgentCards({ outputs, statuses, errors, running }: Props) {
+  const completed = Object.values(statuses).filter((s) => s === "complete").length;
+
   return (
     <section className="panel">
       <header className="panel-header">
         <div className="flex items-center gap-3">
-          <span className="panel-eyebrow">02</span>
-          <h2 className="panel-title">Agent activity</h2>
+          <span className="panel-eyebrow">Agents</span>
+          <h2 className="panel-title">Specialist activity</h2>
         </div>
-        <button
-          type="button"
-          className="btn-primary"
-          onClick={onRun}
-          disabled={running}
-        >
-          {running ? "Running…" : "Run all agents"}
-        </button>
+        <div className="font-mono text-[11px] text-ink-mute">
+          {running
+            ? "running…"
+            : completed > 0
+            ? `${completed} / 6 complete`
+            : "idle"}
+        </div>
       </header>
 
-      <div className="flex-1 overflow-auto p-3 space-y-2">
+      <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
         {AGENT_META.map((meta, idx) => (
           <AgentCard
             key={meta.key}
@@ -62,12 +56,13 @@ export function AgentCards({
             error={errors[meta.key]}
           />
         ))}
-        {errors.all && (
-          <div className="rounded border border-critical/50 bg-critical-soft px-3 py-2 text-sm text-critical">
-            {errors.all}
-          </div>
-        )}
       </div>
+
+      {errors.all && (
+        <div className="mx-4 mb-4 rounded border border-critical/50 bg-critical-soft px-3 py-2 text-sm text-critical">
+          {errors.all}
+        </div>
+      )}
     </section>
   );
 }
@@ -96,53 +91,49 @@ function AgentCard({
   return (
     <article
       className={clsx(
-        "relative bg-bg-raised border border-bg-line rounded-md overflow-hidden",
+        "relative bg-bg-raised border border-bg-line rounded-md overflow-hidden flex flex-col",
         status === "complete" && "animate-fade-in-up",
         status === "running" && "scanline"
       )}
       style={{ animationDelay: `${index * 60}ms` }}
     >
-      <header className="flex items-center justify-between px-3 py-2">
-        <div className="flex items-center gap-3">
-          <span
-            className={clsx(
-              "h-2 w-2 rounded-full",
-              STATUS_DOT[status]
-            )}
-          />
-          <div className="flex flex-col leading-tight">
-            <span className="font-sans text-sm font-medium text-ink">
+      <header className="flex items-center justify-between gap-2 px-3 py-2.5">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <span className={clsx("h-2 w-2 rounded-full shrink-0", STATUS_DOT[status])} />
+          <div className="flex flex-col leading-tight min-w-0">
+            <span className="font-sans text-sm font-medium text-ink truncate">
               {name}
             </span>
-            <span className="font-mono text-[10px] text-ink-mute">{role}</span>
+            <span className="font-mono text-[10px] text-ink-mute truncate">
+              {role}
+            </span>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <span
-            className={clsx(
-              "font-mono text-[10px] uppercase tracking-[0.16em]",
-              status === "complete" && "text-safe",
-              status === "running" && "text-urgent",
-              status === "error" && "text-critical",
-              status === "idle" && "text-ink-mute"
-            )}
-          >
-            {STATUS_LABEL[status]}
-          </span>
-          {hasOutput && (
-            <button
-              type="button"
-              className="font-mono text-[11px] text-ink-dim hover:text-ink px-1"
-              onClick={() => setExpanded((s) => !s)}
-            >
-              {expanded ? "−" : "+"}
-            </button>
+        <span
+          className={clsx(
+            "font-mono text-[10px] uppercase tracking-[0.16em] shrink-0",
+            status === "complete" && "text-safe",
+            status === "running" && "text-urgent",
+            status === "error" && "text-critical",
+            status === "idle" && "text-ink-mute"
           )}
-        </div>
+        >
+          {STATUS_LABEL[status]}
+        </span>
       </header>
 
+      {hasOutput && (
+        <button
+          type="button"
+          onClick={() => setExpanded((s) => !s)}
+          className="border-t border-bg-line px-3 py-1.5 text-left text-[11px] font-mono text-ink-dim hover:text-ink hover:bg-bg-panel/40 transition-colors"
+        >
+          {expanded ? "− hide output" : "+ show output"}
+        </button>
+      )}
+
       {expanded && hasOutput && (
-        <div className="border-t border-bg-line px-3 py-2 max-h-72 overflow-auto">
+        <div className="border-t border-bg-line px-3 py-2.5 max-h-72 overflow-auto bg-bg-panel/30">
           <pre className="font-mono text-[12px] text-ink-dim whitespace-pre-wrap leading-relaxed">
             {output}
           </pre>

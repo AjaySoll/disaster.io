@@ -43,7 +43,7 @@ export function ActionPlan({ scenario, onDeliver }: Props) {
     <section className="panel">
       <header className="panel-header">
         <div className="flex items-center gap-3">
-          <span className="panel-eyebrow">03</span>
+          <span className="panel-eyebrow">Plan</span>
           <h2 className="panel-title">Action plan</h2>
         </div>
         <span className="font-mono text-[11px] text-ink-mute">

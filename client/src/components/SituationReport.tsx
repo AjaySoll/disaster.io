@@ -10,16 +10,16 @@ export function SituationReport({ scenario }: Props) {
     <section className="panel">
       <header className="panel-header">
         <div className="flex items-center gap-3">
-          <span className="panel-eyebrow">05</span>
+          <span className="panel-eyebrow">Brief</span>
           <h2 className="panel-title">Situation report</h2>
         </div>
         <span className="font-mono text-[10px] text-ink-mute">
           comms agent
         </span>
       </header>
-      <div className="px-4 py-3">
+      <div className="px-5 py-4 flex-1 overflow-auto">
         {text ? (
-          <p className="font-sans text-sm leading-relaxed text-ink-dim whitespace-pre-wrap">
+          <p className="font-sans text-[15px] leading-relaxed text-ink-dim whitespace-pre-wrap">
             {text}
           </p>
         ) : (

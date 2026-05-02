@@ -4,10 +4,8 @@ import {
   getScenario,
   listPresets,
   markDelivered,
-  pushUpdate,
   startScenario,
   type DeliverPayload,
-  type ScenarioUpdate,
 } from "../api/scenarios";
 
 const STORAGE_KEY = "disasterio.activeScenarioId";
@@ -54,26 +52,6 @@ export function useScenario() {
     }
   }, []);
 
-  const update = useCallback(
-    async (payload: ScenarioUpdate) => {
-      if (!scenario) return;
-      setError(null);
-      try {
-        const next = await pushUpdate(scenario._id, payload);
-        setScenario(next);
-        return next;
-      } catch (err: any) {
-        setError(
-          err?.response?.data?.error ||
-            err?.message ||
-            "Failed to apply update"
-        );
-        throw err;
-      }
-    },
-    [scenario]
-  );
-
   const deliver = useCallback(
     async (payload: DeliverPayload) => {
       if (!scenario) return;
@@ -112,7 +90,6 @@ export function useScenario() {
     loading,
     error,
     start,
-    update,
     deliver,
     refresh,
     replace,

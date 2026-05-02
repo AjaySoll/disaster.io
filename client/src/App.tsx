@@ -9,22 +9,13 @@ import { ActionPlan } from "./components/ActionPlan";
 import { InventoryTracker } from "./components/InventoryTracker";
 import { SituationReport } from "./components/SituationReport";
 import { EventLog } from "./components/EventLog";
-import { AddUpdateModal } from "./components/AddUpdateModal";
 import { ScenarioMap } from "./components/ScenarioMap";
+import { ConflictPanel } from "./components/ConflictPanel";
 
 export default function App() {
-  const {
-    presets,
-    scenario,
-    loading,
-    error,
-    start,
-    update,
-    deliver,
-    replace,
-  } = useScenario();
+  const { presets, scenario, loading, error, start, deliver, replace } =
+    useScenario();
   const { statuses, errors, running, trigger } = useAgents(replace);
-  const [showUpdate, setShowUpdate] = useState(false);
 
   const scenarioName = getScenarioName(scenario, presets);
 
@@ -52,7 +43,6 @@ export default function App() {
           errors={errors}
           running={running}
           onRun={handleRunAgents}
-          onAddUpdate={() => setShowUpdate(true)}
           onDeliver={deliver}
         />
       ) : (
@@ -66,14 +56,6 @@ export default function App() {
           {error}
         </div>
       )}
-
-      {showUpdate && scenario && (
-        <AddUpdateModal
-          scenario={scenario}
-          onClose={() => setShowUpdate(false)}
-          onSubmit={update}
-        />
-      )}
     </div>
   );
 }
@@ -85,7 +67,6 @@ interface DashboardProps {
   errors: ReturnType<typeof useAgents>["errors"];
   running: boolean;
   onRun: () => void;
-  onAddUpdate: () => void;
   onDeliver: ReturnType<typeof useScenario>["deliver"];
 }
 
@@ -96,7 +77,6 @@ function Dashboard({
   errors,
   running,
   onRun,
-  onAddUpdate,
   onDeliver,
 }: DashboardProps) {
   return (
@@ -106,7 +86,6 @@ function Dashboard({
         scenarioName={scenarioName}
         running={running}
         onRun={onRun}
-        onAddUpdate={onAddUpdate}
       />
 
       {/* Big centred live map */}
@@ -120,6 +99,12 @@ function Dashboard({
         statuses={statuses}
         errors={errors}
         running={running}
+      />
+
+      {/* Inter-agent arbitration — the differentiating feature */}
+      <ConflictPanel
+        scenario={scenario}
+        agentsHaveRun={Boolean(scenario.agentOutputs?.coordinator)}
       />
 
       {/* Three-column dashboard grid: locations / action plan / inventory */}
@@ -175,13 +160,46 @@ function TopBar() {
 }
 
 function Footer() {
+  const credits = [
+    { handle: "aarondoesnotcode", url: "https://github.com/aarondoesnotcode" },
+    { handle: "ajaysoll", url: "https://github.com/ajaysoll" },
+    { handle: "kae9", url: "https://github.com/kae9" },
+  ];
+
   return (
     <footer className="border-t border-bg-line mt-auto">
-      <div className="max-w-[1400px] mx-auto px-6 py-5 flex items-center justify-between font-mono text-[11px] text-ink-mute">
+      <div className="max-w-[1400px] mx-auto px-6 py-5 flex flex-wrap items-center justify-between gap-3 font-mono text-[11px] text-ink-mute">
         <span>disaster.io · multi-agent disaster response coordinator</span>
-        <span>claude-sonnet-4 · openstreetmap · carto</span>
+        <div className="flex items-center gap-2">
+          <span className="text-ink-mute">built by</span>
+          {credits.map((c) => (
+            <a
+              key={c.handle}
+              href={c.url}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="inline-flex items-center gap-1 text-ink-dim hover:text-urgent transition-colors"
+            >
+              <GithubIcon />@{c.handle}
+            </a>
+          ))}
+        </div>
       </div>
     </footer>
+  );
+}
+
+function GithubIcon() {
+  return (
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      aria-hidden
+    >
+      <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z" />
+    </svg>
   );
 }
 
